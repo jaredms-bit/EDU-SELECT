@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EDU-SELECT — Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --guinda: #a10028;
+      --guinda-2: #ff4661;
+      --bg-dark: #05060a;
+      --card: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --muted: #cbd5e1;
+      --accent-text: #ffdfe3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #03040a 0%, #0b0710 45%, #070307 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      color: var(--accent-text);
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Table Styles */
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      color: var(--guinda-2);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .btn-edit {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-ai {
+      background: linear-gradient(90deg, var(--guinda), var(--guinda-2));
+      color: white;
+      padding: 10px 20px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      padding: 24px;
+      border-radius: 12px;
+      width: 700px;
+      max-width: 95%;
+      border: 1px solid var(--glass-border);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    /* Reset margin as gap handles it */
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #000;
+      color: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h1>Panel de Administración</h1>
+      <a href="/" style="color:var(--muted); text-decoration:none;">← Volver al Inicio</a>
+    </div>
+
+    <button class="btn btn-ai" onclick="generatePredictions()">✨ Generar Predicciones IA</button>
+
+    <div class="table-wrap">
+      <table id="recordsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Nivel Edu.</th>
+            <th>Institución</th>
+            <th>Predicción IA</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2 style="margin-bottom:16px;">Editar Registro</h2>
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombre</label><input id="edit-nombre"></div>
+        <div class="form-group"><label>Apellidos</label><input id="edit-apellidos"></div>
+        <div class="form-group"><label>Edad</label><input id="edit-edad" type="number"></div>
+        <div class="form-group"><label>Procedencia</label><input id="edit-procedencia"></div>
+        <div class="form-group"><label>Entidad Federativa</label><input id="edit-entidad"></div>
+        <div class="form-group"><label>Zona Geográfica</label><input id="edit-zona"></div>
+        <div class="form-group"><label>Nivel Educativo</label><input id="edit-nivel-edu"></div>
+        <div class="form-group"><label>Campo Estudio</label><input id="edit-campo"></div>
+        <div class="form-group"><label>Tipo Institución</label><input id="edit-tipo-inst"></div>
+        <div class="form-group"><label>Institución</label><input id="edit-inst"></div>
+        <div class="form-group"><label>Rango Ingreso</label><input id="edit-ingreso" type="number"></div>
+        <div class="form-group"><label>Experiencia (años)</label><input id="edit-experiencia" type="number"></div>
+        <div class="form-group"><label>Jornada</label><input id="edit-jornada"></div>
+        <div class="form-group"><label>Nivel</label><input id="edit-nivel"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" style="background:#555;color:#fff" onclick="closeModal()">Cancelar</button>
+        <button class="btn" style="background:var(--guinda);color:#fff" onclick="saveEdit()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allRecords = [];
+
+    async function loadRecords() {
+      try {
+        const res = await fetch('/api/records');
+        allRecords = await res.json();
+        renderTable();
+      } catch (e) {
+        console.error(e);
+        alert('Error cargando registros');
+      }
+    }
+
+    async function generatePredictions() {
+      const btn = document.querySelector('.btn-ai');
+      const originalText = btn.innerText;
+      btn.innerText = 'Generando...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/predict_all', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.msg);
+          allRecords = data.records; // Update local records with new predictions
+          renderTable();
+        } else {
+          alert('Error: ' + data.msg);
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Error conectando con el servidor');
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#recordsTable tbody');
+      tbody.innerHTML = '';
+
+      // Sort by ID desc
+      const sorted = [...allRecords].sort((a, b) => b.ID - a.ID);
+
+      sorted.forEach(r => {
+        const tr = document.createElement('tr');
+
+        // Style for prediction
+        let predStyle = '';
+        if (r.Prediccion_IA) {
+          predStyle = 'font-weight:bold; color: #ffdfe3;';
+        }
+
+        tr.innerHTML = `
+        <td>${r.ID}</td>
+        <td>${r.Nombre || ''}</td>
+        <td>${r.Apellidos || ''}</td>
+        <td>${r['Nivel Educativo'] || ''}</td>
+        <td>${r['Institución'] || ''}</td>
+        <td style="${predStyle}">${r.Prediccion_IA || '-'}</td>
+        <td>
+          <button class="btn btn-edit" onclick="openEdit(${r.ID})">Editar</button>
+          <button class="btn btn-delete" onclick="deleteRecord(${r.ID})">Borrar</button>
+        </td>
+      `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteRecord(id) {
+      if (!confirm('¿Estás seguro de eliminar este registro?')) return;
+      try {
+        const res = await fetch(`/api/records/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          allRecords = allRecords.filter(r => r.ID !== id);
+          renderTable();
+        } else {
+          alert('Error al eliminar');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function openEdit(id) {
+      const r = allRecords.find(x => x.ID === id);
+      if (!r) return;
+
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-nombre').value = r.Nombre || '';
+      document.getElementById('edit-apellidos').value = r.Apellidos || '';
+      document.getElementById('edit-edad').value = r.Edad || '';
+      document.getElementById('edit-procedencia').value = r.Procedencia || '';
+      document.getElementById('edit-entidad').value = r['Entidad Federativa'] || '';
+      document.getElementById('edit-zona').value = r['Zona Geográfica'] || '';
+      document.getElementById('edit-nivel-edu').value = r['Nivel Educativo'] || '';
+      document.getElementById('edit-campo').value = r['Campo Estudio'] || '';
+      document.getElementById('edit-tipo-inst').value = r['Tipo Institución'] || '';
+      document.getElementById('edit-inst').value = r['Institución'] || '';
+      document.getElementById('edit-ingreso').value = r['Rango Ingreso'] || '';
+      document.getElementById('edit-experiencia').value = r['Experiencia (años)'] || '';
+      document.getElementById('edit-jornada').value = r.Jornada || '';
+      document.getElementById('edit-nivel').value = r.Nivel || '';
+
+      document.getElementById('editModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('open');
+    }
+
+    async function saveEdit() {
+      const id = parseInt(document.getElementById('edit-id').value);
+      const data = {
+        "Nombre": document.getElementById('edit-nombre').value,
+        "Apellidos": document.getElementById('edit-apellidos').value,
+        "Edad": parseInt(document.getElementById('edit-edad').value) || 0,
+        "Procedencia": document.getElementById('edit-procedencia').value,
+        "Entidad Federativa": document.getElementById('edit-entidad').value,
+        "Zona Geográfica": document.getElementById('edit-zona').value,
+        "Nivel Educativo": document.getElementById('edit-nivel-edu').value,
+        "Campo Estudio": document.getElementById('edit-campo').value,
+        "Tipo Institución": document.getElementById('edit-tipo-inst').value,
+        "Institución": document.getElementById('edit-inst').value,
+        "Rango Ingreso": parseInt(document.getElementById('edit-ingreso').value) || 0,
+        "Experiencia (años)": parseInt(document.getElementById('edit-experiencia').value) || 0,
+        "Jornada": document.getElementById('edit-jornada').value,
+        "Nivel": document.getElementById('edit-nivel').value
+      };
+
+      try {
+        const res = await fetch(`/api/records/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          // Update local state
+          const idx = allRecords.findIndex(x => x.ID === id);
+          if (idx !== -1) {
+            // Keep existing prediction if not updated by server (though here we just update fields)
+            const oldPred = allRecords[idx].Prediccion_IA;
+            allRecords[idx] = { ...allRecords[idx], ...data, Prediccion_IA: oldPred };
+          }
+          renderTable();
+          closeModal();
+        } else {
+          alert('Error al guardar');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    loadRecords();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EDU-SELECT — Plataforma Premium</title>
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+
+  <style>
+    :root {
+      --guinda: #a10028;
+      --guinda-2: #ff4661;
+      --bg-dark: #05060a;
+      --card: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --muted: #cbd5e1;
+      --accent-text: #ffdfe3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #03040a 0%, #0b0710 45%, #070307 100%);
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* PARTICLES CANVAS (full screen) */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* NAV */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.15));
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 4%;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--guinda), var(--guinda-2));
+      box-shadow: 0 8px 30px rgba(161, 0, 40, 0.18), inset 0 -6px 18px rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-size: 18px;
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: var(--accent-text)
+    }
+
+    .brand p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    /* header actions simplified */
+    nav {
+      display: flex;
+      gap: 14px;
+      align-items: center
+    }
+
+    .btn-ghost {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .22s;
+    }
+
+    .btn-ghost:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      color: white
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 10;
+      padding: 90px 6% 40px;
+      text-align: left;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .hero-left {
+      max-width: 900px;
+    }
+
+    .kicker {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(161, 0, 40, 0.12), rgba(255, 70, 97, 0.08));
+      color: var(--guinda-2);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: 46px;
+      line-height: 1.02;
+      font-weight: 800;
+      color: #ffdfe3;
+      text-shadow: 0 4px 22px rgba(161, 0, 40, 0.08);
+    }
+
+    .hero-sub {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 720px
+    }
+
+    .cta-row {
+      margin-top: 26px;
+      display: flex;
+      gap: 12px;
+      align-items: center
+    }
+
+    .cta-primary {
+      padding: 14px 20px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--guinda), var(--guinda-2));
+      box-shadow: 0 12px 30px rgba(161, 0, 40, 0.26);
+      font-weight: 800;
+      font-size: 16px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: transform .18s ease;
+    }
+
+    .cta-primary:hover {
+      transform: translateY(-4px)
+    }
+
+    .cta-secondary {
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    /* RIGHT SIDEBAR hero card */
+    .hero-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 22px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(10, 10, 10, 0.6);
+    }
+
+    .hero-card h3 {
+      font-size: 20px;
+      color: #ffdfe3;
+      margin-bottom: 8px
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45
+    }
+
+    /* GRID SECTION (cards) */
+    .section {
+      padding: 40px 6% 80px;
+      z-index: 10;
+      position: relative
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+      margin-top: 20px
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(6px);
+      transition: transform .25s, box-shadow .25s;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6)
+    }
+
+    .card h4 {
+      font-size: 18px;
+      color: #ffdfe3;
+      margin-bottom: 8px
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    /* FORMS area */
+    .forms-wrap {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      align-items: start;
+      margin-top: 28px
+    }
+
+    .form-card {
+      padding: 22px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--glass-border);
+    }
+
+    .form-card h3 {
+      color: #ffdfe3;
+      margin-bottom: 8px
+    }
+
+    .field {
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .field label {
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      font-size: 15px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical
+    }
+
+    .submit {
+      margin-top: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--guinda), var(--guinda-2));
+      color: white;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(161, 0, 40, 0.18)
+    }
+
+    /* small responsive */
+    @media(max-width:980px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 60px 6%
+      }
+
+      .forms-wrap {
+        grid-template-columns: 1fr
+      }
+
+      .hero-card {
+        order: 2
+      }
+    }
+
+    /* focus and accessibility */
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid rgba(161, 0, 40, 0.14);
+      box-shadow: 0 6px 20px rgba(161, 0, 40, 0.06)
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+
+  <header>
+    <div class="brand">
+      <div class="logo">EDU</div>
+      <div>
+        <h1>EDU-SELECT</h1>
+        <p style="margin-top:2px;font-size:12px;color:var(--muted)">Reclutamiento Ético • Inteligente • Seguro</p>
+      </div>
+    </div>
+
+    <nav>
+      <button class="btn-ghost" onclick="scrollToSection('section-opportunities')">Vacantes</button>
+      <button class="btn-ghost" onclick="scrollToSection('section-register')">Registrar</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="hero" id="hero">
+      <div class="hero-left">
+        <div class="kicker">Plataforma</div>
+        <h2 class="hero-title">Reclutamiento docente con seguridad y estilo</h2>
+        <p class="hero-sub">Crea perfiles, registra aspirantes y protege tus datos.
+
+        <div class="cta-row">
+          <button class="cta-primary" onclick="scrollToSection('section-register')">Registrar ahora</button>
+          <button class="cta-secondary" onclick="scrollToSection('section-opportunities')">Ver requisitos</button>
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <h3>Oportunidades destacadas</h3>
+        <p>Tiempo completo, medio tiempo y por asignatura. Revisa requisitos y postula según tu perfil académico.</p>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <span
+            style="background:linear-gradient(90deg,var(--guinda),var(--guinda-2));padding:8px 12px;border-radius:10px;font-weight:700">Psicología</span>
+          <span
+            style="background:rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:var(--muted)">Ingeniería</span>
+          <span
+            style="background:rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:var(--muted)">TI</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="section-opportunities">
+      <h2 style="color:#ffdfe3">Requisitos y Áreas</h2>
+
+      <div class="cards-grid" aria-hidden="false">
+        <div class="card">
+          <h4>Requisitos Generales</h4>
+          <p>Contar con título y cédula, experiencia docente (≈2 años), manejo de tecnología educativa, documentación
+            completa y no contar con sentencias dolosas.</p>
+        </div>
+
+        <div class="card">
+          <h4>Por asignatura</h4>
+          <p>Experiencia docente mínima en educación superior, manejo de tecnología y participación en tutorías y
+            exámenes.</p>
+        </div>
+      </div>
+
+      <div class="cards-grid" style="margin-top:26px">
+        <div class="card">
+          <h4>Áreas por licenciatura</h4>
+          <p>Psicología, Turismo, Contaduría Y Finanzas, Derecho, Control y Automatización (Ingeniería), Ciencias
+            Ambientales, Administración, Tecnologias De La Informacion, Pedagogía, Comunicación.</p>
+        </div>
+
+        <div class="card">
+          <h4>Tips para postular</h4>
+          <p>Ten tu CV en PDF, cédula lista, prepara exposición del programa y resalta experiencia virtual si aplica.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="section" id="section-register">
+      <h2 style="color:#ffdfe3">Registro de Aspirantes</h2>
+
+      <div class="forms-wrap">
+        <div class="form-card">
+          <h3>Datos Personales</h3>
+          <div class="field"><label>Nombre</label><input id="f-nombre" placeholder="Ej. Miguel"></div>
+          <div class="field"><label>Apellidos</label><input id="f-apellidos" placeholder="Ej. López"></div>
+          <div class="field"><label>Edad</label><input id="f-edad" type="number" placeholder="Ej. 27"></div>
+          <div class="field"><label>Procedencia</label><input id="f-procedencia" placeholder="Ej. Nuevo León"></div>
+          <div class="field"><label>Entidad Federativa</label><input id="f-entidad" placeholder="Ej. CDMX"></div>
+          <div class="field"><label>Zona Geográfica</label><select id="f-zona">
+              <option>Norte</option>
+              <option>Centro</option>
+              <option>Sur</option>
+            </select></div>
+        </div>
+
+        <aside class="form-card" style="position:sticky;top:100px;height:max-content">
+          <h3>Datos Académicos y Laborales</h3>
+          <div class="field"><label>Nivel Educativo</label><select id="f-nivel-edu">
+              <option>Licenciatura</option>
+              <option>Maestría</option>
+              <option>Doctorado</option>
+            </select></div>
+          <div class="field"><label>Campo Estudio</label><input id="f-campo"
+              placeholder="Ej. Tecnologías de la Información"></div>
+          <div class="field"><label>Tipo Institución</label><select id="f-tipo-inst">
+              <option>Pública</option>
+              <option>Privada</option>
+            </select></div>
+          <div class="field"><label>Institución</label><input id="f-institucion" placeholder="Ej. UNAM"></div>
+          <div class="field"><label>Rango Ingreso</label><input id="f-ingreso" type="number" placeholder="Ej. 32903">
+          </div>
+          <div class="field"><label>Experiencia (años)</label><input id="f-experiencia" type="number"
+              placeholder="Ej. 6"></div>
+          <div class="field"><label>Jornada</label><select id="f-jornada">
+              <option>Asignatura</option>
+            </select></div>
+          <div class="field"><label>Nivel</label><select id="f-nivel">
+              <option>A</option>
+              <option>B</option>
+              <option>C</option>
+            </select></div>
+        </aside>
+      </div>
+
+      <div style="margin-top:28px; text-align:center;">
+        <button class="submit" style="font-size:18px; padding:16px 32px;" onclick="submitFullProfile()">Registrar Perfil
+          Completo</button>
+        <div id="main-msg" style="margin-top:12px;font-size:16px;color:var(--muted)"></div>
+      </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* ---------------------------
+       PARTICLES (mouse-following)
+       lightweight canvas particle system
+       --------------------------- */
+    (() => {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = innerWidth;
+      let h = canvas.height = innerHeight;
+      const particles = [];
+      const PARTICLE_COUNT = Math.floor((w * h) / 70000); // adaptive
+      const mouse = { x: w / 2, y: h / 2, vx: 0, vy: 0, down: false };
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = innerWidth;
+        h = canvas.height = innerHeight;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      // Particle class
+      class P {
+        constructor() {
+          this.reset();
+          this.size = 1 + Math.random() * 2.6;
+          this.alpha = 0.08 + Math.random() * 0.35;
+          this.hue = 345 + Math.random() * 10; // guinda-ish glow
+        }
+        reset() {
+          this.x = Math.random() * w;
+          this.y = Math.random() * h;
+          this.vx = (Math.random() - 0.5) * 0.3;
+          this.vy = (Math.random() - 0.5) * 0.3;
+        }
+        step() {
+          // attraction to mouse
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) + 0.001;
+          const force = Math.max(0, 120 - dist) * 0.0008;
+          this.vx += (dx / dist) * force;
+          this.vy += (dy / dist) * force;
+
+          // friction
+          this.vx *= 0.97;
+          this.vy *= 0.97;
+
+          this.x += this.vx;
+          this.y += this.vy;
+
+          // wrap edges gently
+          if (this.x < -20) this.x = w + 20;
+          if (this.x > w + 20) this.x = -20;
+          if (this.y < -20) this.y = h + 20;
+          if (this.y > h + 20) this.y = -20;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,70,97,${this.alpha})`;
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function initParticles() {
+        particles.length = 0;
+        const count = Math.max(18, PARTICLE_COUNT);
+        for (let i = 0; i < count; i++) particles.push(new P());
+      }
+
+      function connect() {
+        const maxDist = 140;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const a = particles[i];
+            const b = particles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < maxDist) {
+              const alpha = 0.12 * (1 - d / maxDist);
+              ctx.strokeStyle = `rgba(255,80,100,${alpha})`;
+              ctx.lineWidth = 0.9;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      function loop() {
+        ctx.clearRect(0, 0, w, h);
+        // subtle background gradient overlay
+        const g = ctx.createLinearGradient(0, 0, w, h);
+        g.addColorStop(0, 'rgba(10,6,10,0.03)');
+        g.addColorStop(1, 'rgba(0,0,0,0.03)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        for (let p of particles) { p.step(); p.draw(); }
+        connect();
+        requestAnimationFrame(loop);
+      }
+
+      initParticles();
+      loop();
+    })();
+
+    /* ---------------------------
+       Simple scroll helpers & interactions
+       --------------------------- */
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (!el) return window.scrollTo({ top: 0, behavior: 'smooth' });
+      const top = el.getBoundingClientRect().top + window.scrollY - 70;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    /* ---------------------------
+       Light/Dark-ish toggle (invert to light)
+       --------------------------- */
+    let lightMode = false;
+    function toggleMode() {
+      lightMode = !lightMode;
+      const btn = document.getElementById('modeBtn');
+      if (lightMode) {
+        document.documentElement.style.setProperty('--guinda', '#8b0000');
+        document.documentElement.style.setProperty('--guinda-2', '#ff6f88');
+        document.body.style.background = 'linear-gradient(180deg,#fff0f2,#ffeef0 60%, #fff)';
+        document.body.style.color = '#000';
+        btn.innerText = 'Modo Oscuro';
+      } else {
+        document.documentElement.style.setProperty('--guinda', '#a10028');
+        document.documentElement.style.setProperty('--guinda-2', '#ff4661');
+        document.body.style.background = 'linear-gradient(180deg, #03040a 0%, #0b0710 45%, #070307 100%)';
+        document.body.style.color = '#fff';
+        btn.innerText = 'Modo Claro';
+      }
+    }
+
+    /* ---------------------------
+       FORM SUBMIT stubs (connect to your Flask endpoints)
+       - These functions prepare JSON payloads.
+       - Currently they POST to /register (server must implement RSA or plain save).
+       --------------------------- */
+    async function submitFullProfile() {
+      const nombre = document.getElementById('f-nombre').value.trim();
+      const apellidos = document.getElementById('f-apellidos').value.trim();
+      const edad = document.getElementById('f-edad').value.trim();
+      const procedencia = document.getElementById('f-procedencia').value.trim();
+      const entidad = document.getElementById('f-entidad').value.trim();
+      const zona = document.getElementById('f-zona').value;
+
+      const nivelEdu = document.getElementById('f-nivel-edu').value;
+      const campo = document.getElementById('f-campo').value.trim();
+      const tipoInst = document.getElementById('f-tipo-inst').value;
+      const institucion = document.getElementById('f-institucion').value.trim();
+      const ingreso = document.getElementById('f-ingreso').value.trim();
+      const experiencia = document.getElementById('f-experiencia').value.trim();
+      const jornada = document.getElementById('f-jornada').value;
+      const nivel = document.getElementById('f-nivel').value;
+
+      const msgEl = document.getElementById('main-msg');
+
+      if (!nombre || !apellidos) { msgEl.innerText = 'Por favor ingresa Nombre y Apellidos.'; return; }
+      msgEl.innerText = 'Enviando perfil completo...';
+
+      try {
+        // 1. Get Public Key
+        const keyRes = await fetch('http://127.0.0.1:5000/public-key');
+        const keyJson = await keyRes.json();
+        const publicKey = keyJson.publicKey;
+
+        // 2. Prepare Data
+        const rawData = {
+          "Nombre": nombre,
+          "Apellidos": apellidos,
+          "Edad": parseInt(edad) || 0,
+          "Procedencia": procedencia,
+          "Entidad Federativa": entidad,
+          "Zona Geográfica": zona,
+          "Nivel Educativo": nivelEdu,
+          "Campo Estudio": campo,
+          "Tipo Institución": tipoInst,
+          "Institución": institucion,
+          "Rango Ingreso": parseInt(ingreso) || 0,
+          "Experiencia (años)": parseInt(experiencia) || 0,
+          "Jornada": jornada,
+          "Nivel": nivel
+        };
+
+        // 3. Encrypt with Hybrid Encryption
+        const encryptedPayload = await encryptHybrid(rawData, publicKey);
+
+        // 4. Send to Backend
+        const res = await fetch('http://127.0.0.1:5000/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(encryptedPayload)
+        });
+
+        const j = await res.json();
+        if (res.ok) {
+          msgEl.innerText = 'Perfil registrado correctamente. ID: ' + j.id;
+          // Optional: Clear forms
+        }
+        else { msgEl.innerText = j.msg || 'Error en servidor'; }
+      } catch (err) {
+        msgEl.innerText = 'Error: ' + err.message;
+        console.error(err);
+      }
+    }
+
+    // --- Hybrid Encryption Helpers ---
+
+    async function encryptHybrid(dataObj, publicKeyPem) {
+      // A. Generate AES Key (256-bit)
+      const aesKey = await window.crypto.subtle.generateKey(
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+      );
+
+      // B. Export AES Key to raw bytes
+      const rawKey = await window.crypto.subtle.exportKey("raw", aesKey);
+      const keyBase64 = arrayBufferToBase64(rawKey);
+
+      // C. Encrypt AES Key with RSA (using JSEncrypt)
+      const encrypt = new JSEncrypt();
+      encrypt.setPublicKey(publicKeyPem);
+      const encryptedKey = encrypt.encrypt(keyBase64);
+      if (!encryptedKey) throw new Error("RSA Encryption of AES key failed");
+
+      // D. Encrypt Data with AES-GCM
+      const iv = window.crypto.getRandomValues(new Uint8Array(12)); // 12 bytes IV for GCM
+      const enc = new TextEncoder();
+      const encodedData = enc.encode(JSON.stringify(dataObj));
+
+      const encryptedDataBuffer = await window.crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        aesKey,
+        encodedData
+      );
+
+      return {
+        key: encryptedKey,
+        iv: arrayBufferToBase64(iv),
+        data: arrayBufferToBase64(encryptedDataBuffer)
+      };
+    }
+
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
+    }
+  </script>
+
+</body>
+
+</html>
